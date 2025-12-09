@@ -6,6 +6,7 @@ package swaggerFiles
 
 import (
 	"os"
+	"strings"
 )
 
 // FileIndexHTML is "/index.html"
@@ -13,12 +14,18 @@ var FileIndexHTML = []byte("\x3c\x21\x2d\x2d\x20\x48\x54\x4d\x4c\x20\x66\x6f\x72
 
 func init() {
 
+	str := string(FileIndexHTML)
+
+	str = strings.ReplaceAll(str, "./swagger-ui-bundle.js", "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.3/swagger-ui-bundle.js")
+
+	updatedBytes := []byte(str)
+
 	f, err := FS.OpenFile(CTX, "/index.html", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
 	if err != nil {
 		panic(err)
 	}
 
-	_, err = f.Write(FileIndexHTML)
+	_, err = f.Write(updatedBytes)
 	if err != nil {
 		panic(err)
 	}
