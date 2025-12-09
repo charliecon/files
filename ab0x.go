@@ -5,6 +5,7 @@ package swaggerFiles
 
 import (
 	"bytes"
+	"strings"
 
 	"context"
 	"io"
@@ -53,6 +54,29 @@ func (hfs *HTTPFS) Open(path string) (http.File, error) {
 	path = hfs.Prefix + path
 
 	f, err := FS.OpenFile(CTX, path, os.O_RDONLY, 0644)
+	if err != nil {
+		return nil, err
+	}
+
+	if strings.Trim(path, "/") == "index.html" {
+		// Read original file contents
+        data, err := io.ReadAll(f)
+        f.Close() // close original file
+        if err != nil {
+            return nil, err
+        }
+
+        // Perform replacement
+        modified := bytes.ReplaceAll(data, []byte("./swagger-ui-bundle.js"), []byte("https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.3/swagger-ui-bundle.js"))
+
+        // Wrap modified bytes in a custom http.File
+        err = WriteFile(path, modified, 0644)
+		if err != nil {
+			return nil, err
+		}
+	}	
+
+	f, err = FS.OpenFile(CTX, path, os.O_RDONLY, 0644)
 	if err != nil {
 		return nil, err
 	}
