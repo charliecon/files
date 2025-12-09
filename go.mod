@@ -1,3 +1,5 @@
-module github.com/swaggo/files/v2
+module github.com/charliecon/files
 
-go 1.16
+go 1.24.0
+
+require golang.org/x/net v0.48.0
